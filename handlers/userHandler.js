@@ -1,7 +1,8 @@
-const registerUserDb = require('../controllers/userController')
+const bcrypt = require('bcrypt')
+const {registerUserDb, duplicatedUserDb}= require('../controllers/userController')
 
 
-const registerUser = (req, res) => {
+const registerUser = async (req, res) => {
 
     //Recoger datos de la petición
     const {name, subname, nick, email, password} = req.body;
@@ -19,15 +20,61 @@ const registerUser = (req, res) => {
     }
 
     //Control de usuarios duplicados
-    const userSave = registerUserDb(name, subname, nick, email, password)
+    try {
 
-    //Cifrar la contraseña
+        const duplicatedUser = await duplicatedUserDb(name, email);
 
-    //Guradar en la base de datos 
+        if(duplicatedUser && duplicatedUser.length >= 1){
 
-    //Devolver el resultadado
+            return res.status(200).send({
 
+                status: "success",
+                message: "El usuario ya existe"
+
+            })
+
+        }else{
+
+            //Cifrar la contraseña (se utilza la librebreia bcrypt-nodejs)(el son los cifrados sobre cifrados, es como el nivel de seguridad)
+            const hashedPassword = await bcrypt.hash(password, 10)
+
+            //Crear registro de usuario en la db
+            try {
+                
+                const userSave = await registerUserDb(name, subname, nick, email, hashedPassword)
+
+                //Devolver el resultadado
+                return res.status(201).json({
+
+                    status: "success",
+                    mensaje: "Usuario creado",
+                    user: userSave
+                })
+                
+            } catch (error) {
+
+                return res.status(500).json({
+
+                    status: "error",
+                    mensaje: "Error del servidor al registrar el usuario",
+
+                });
+
+            }
+
+        }
+        
+    } catch (error) {
+        
+        return res.status(500).json({
+
+            status: "error",
+            mensaje: "Error del servidor al crear el usuario"
+
+        })
+        
+    }
 
 }
 
-module.exports = {pruebaUser, registerUser}
+module.exports = registerUser;

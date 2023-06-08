@@ -4,24 +4,28 @@ const registerUserDb = (name, subname, nick, email, password) => {
 
     const registerUser = new User({
 
-        name: name, 
-        subname: subname,
-        nick: nick, 
-        email: email, 
-        password: password
+        name, 
+        subname,
+        nick, 
+        email, 
+        password
 
     })
 
-    return registerUser.save()
-
-    .then(userRegistred => userRegistred)
-
-    .catch(error => {
-
-        throw error;
-        
-    })
+    return registerUser.save();
 
 }
 
-module.exports = registerUserDb;
+const duplicatedUserDb = (email, nick) =>{
+
+    if(email && nick){
+
+        return User.find({ $or: [ // si un email existe o un nick name existe no se cumple la condicion, para eso funciona el $or
+            {email: email.toLowerCase()},
+            {nick: nick.toLowerCase()} ]}).exec()
+    }
+
+
+}
+
+module.exports = {registerUserDb,duplicatedUserDb};

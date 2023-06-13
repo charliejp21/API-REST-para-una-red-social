@@ -1,7 +1,10 @@
 const bcrypt = require('bcrypt')
-const {registerUserDb, duplicatedUserDb}= require('../controllers/userController')
+const {registerUserDb, duplicatedUserDb, loginFind} = require('../controllers/userController');
+const createToken = require("../services/jwt")
 
+//importar servicios
 
+//Registrar usuario
 const registerUser = async (req, res) => {
 
     //Recoger datos de la petición
@@ -22,7 +25,7 @@ const registerUser = async (req, res) => {
     //Control de usuarios duplicados
     try {
 
-        const duplicatedUser = await duplicatedUserDb(name, email);
+        const duplicatedUser = await duplicatedUserDb(email, nick);
 
         if(duplicatedUser && duplicatedUser.length >= 1){
 
@@ -35,32 +38,17 @@ const registerUser = async (req, res) => {
 
         }else{
 
-            //Cifrar la contraseña (se utilza la librebreia bcrypt-nodejs)(el son los cifrados sobre cifrados, es como el nivel de seguridad)
-            const hashedPassword = await bcrypt.hash(password, 10)
-
             //Crear registro de usuario en la db
-            try {
-                
-                const userSave = await registerUserDb(name, subname, nick, email, hashedPassword)
+            const userSave = await registerUserDb(name, subname, nick, email, hashedPassword)
 
-                //Devolver el resultadado
-                return res.status(201).json({
+            //Devolver el resultadado
+            return res.status(201).json({
 
-                    status: "success",
-                    mensaje: "Usuario creado",
-                    user: userSave
-                })
-                
-            } catch (error) {
+                status: "success",
+                mensaje: "Usuario creado",
+                user: userSave
+            })
 
-                return res.status(500).json({
-
-                    status: "error",
-                    mensaje: "Error del servidor al registrar el usuario",
-
-                });
-
-            }
 
         }
         
@@ -75,6 +63,70 @@ const registerUser = async (req, res) => {
         
     }
 
+   
 }
 
-module.exports = registerUser;
+// Login
+const loginUser = async(req, res) => {
+
+    //Recoger parametro del body
+    const {email, password} = req.body
+
+    //Buscar en bd si existe
+
+    if(!email || !password){
+
+        return res.status(400).send({
+
+            status: "success",
+            mensaje: "Faltan datos por enviar"
+        })
+    }
+
+    try {
+
+        const findUserDb = await loginFind(email, password)
+
+        if(findUserDb){
+
+            return res.status(200).send({
+
+                status: "success",
+                usuario: findUserDb
+            })
+
+        }else{
+
+            return res.status(400).send({
+
+                status: "success",
+                mensaje: "No hay registros con el correo indiciado"
+
+            })
+
+        }
+
+
+    } catch (error) {
+
+        return res.status(500).send({
+
+            status: "error",
+            mensaje: "Error del servidor al ejecutar el login"
+
+        })
+        
+    }
+
+
+    //Comprobar su contraseña
+
+    //Token
+    const token = createToken(user)
+    
+
+    //Devolver datos del usuario
+
+}
+
+module.exports = {registerUser, loginUser};

@@ -1,8 +1,7 @@
-const bcrypt = require('bcrypt')
-const {registerUserDb, duplicatedUserDb, loginFind} = require('../controllers/userController');
-const createToken = require("../services/jwt")
+const {registerUserDb, duplicatedUserDb, loginFind, findUserById} = require('../controllers/userController');
 
 //importar servicios
+const createToken = require("../services/jwt")
 
 //Registrar usuario
 const registerUser = async (req, res) => {
@@ -39,14 +38,15 @@ const registerUser = async (req, res) => {
         }else{
 
             //Crear registro de usuario en la db
-            const userSave = await registerUserDb(name, subname, nick, email, hashedPassword)
+            const userSave = await registerUserDb(name, subname, nick, email, password)
 
             //Devolver el resultadado
             return res.status(201).json({
 
                 status: "success",
                 mensaje: "Usuario creado",
-                user: userSave
+                user: userSave.name,
+                email: userSave.email
             })
 
 
@@ -72,7 +72,7 @@ const loginUser = async(req, res) => {
     //Recoger parametro del body
     const {email, password} = req.body
 
-    //Buscar en bd si existe
+    //Buscar en bd si existe y comprar contraseña
 
     if(!email || !password){
 
@@ -89,10 +89,22 @@ const loginUser = async(req, res) => {
 
         if(findUserDb){
 
+            //Conseguir token
+
+            const token = createToken(findUserDb)
+
+            //Devolver datos del usuario
+
             return res.status(200).send({
 
                 status: "success",
-                usuario: findUserDb
+                mensaje: "Te has identificado exitosamente",
+                usuario: {
+                    id: findUserDb._id,
+                    user:findUserDb.name,
+                    nick: findUserDb.nick,
+                    token: token,
+                }
             })
 
         }else{
@@ -100,7 +112,7 @@ const loginUser = async(req, res) => {
             return res.status(400).send({
 
                 status: "success",
-                mensaje: "No hay registros con el correo indiciado"
+                mensaje: "La información proporcionada no coincide"
 
             })
 
@@ -119,14 +131,57 @@ const loginUser = async(req, res) => {
     }
 
 
-    //Comprobar su contraseña
+}
 
-    //Token
-    const token = createToken(user)
-    
+//mi-cuenta
+const miCuenta = async(req, res) => {
 
-    //Devolver datos del usuario
+    return res.status(200).json({
+
+        status: "success",
+        user: req.user
+    })
 
 }
 
-module.exports = {registerUser, loginUser};
+//mi-perfil
+const miPerfil = async(req, res) => {
+
+    const {id} = req.params;
+
+    //consultar
+    try {
+
+        const findUser = await findUserById(id)
+
+        if(findUser._id){
+
+            return res.status(200).json({
+            
+                status: "success",
+                user: findUser
+
+            })
+
+        }
+
+    } catch (error) {
+
+        return res.status(400).json({
+
+            status: "error",
+            message: "No fue posible encontrar un perfil con el id indicado"
+        })
+
+    }
+
+    return res.status(500).json({
+
+        status: "error",
+        message: "Error del servidor al obtener el perfil con el id solicitado"
+    
+    })
+
+}
+
+module.exports = {registerUser, loginUser, miCuenta, miPerfil};

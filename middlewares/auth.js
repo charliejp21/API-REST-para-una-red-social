@@ -4,10 +4,7 @@ const moment = require("moment")
 require('dotenv').config();
 const {SECRET} = process.env;
 
-//Clave secreta con dotenv
-const libjwt = require("../services/jwt")
-
-//Funcion de autenticación
+//Funcion de autenticación (MIDDLEWARE de autenticación)
 exports.auth = (req, res, next) =>{
 
     //Comprobar si me llega la cabecera de auth
@@ -16,45 +13,46 @@ exports.auth = (req, res, next) =>{
         return res.status(403).json({
 
             status: "error",
-            message: "la petición no tiene la cabecera de autenticación"
+            message: "La petición no tiene la cabecera de autenticación"
 
         })
 
     }
 
-}
+    //limpar el token(Posibles comillas simples o dobles)
+    const token = req.headers.authorization.replace(/['"]+/g, '')
 
-//limpar el token
-const token = req.headers.authorization.replace(/['"]+/g, '')
+    //Decodificar el token
+    try {
+        
+        let payload = jwt.decode(token, SECRET)
 
-//Decodificar el token
-try {
-    
-    const payload = jwt.decode(token, SECRET)
+        //Comprobar expiración del token
+        if(payload.exp <= moment().unix()){
 
-    //Comprobar expiración del token
-    if(payload.exp <= moment().unix()){
+            return res.status(401).send({
 
-        return res.status(401).send({
+                status: "error",
+                message: "Token expirado",
+
+            })
+
+        }
+        
+        //Agregar datos del usuario
+        req.user = payload;
+
+    } catch (error) {
+        
+        return res.status(404).send({
 
             status: "error",
-            message: "Token expirado",
-            error 
+            message: "Token inválido",
+            error
         })
-
-
     }
 
-} catch (error) {
-    
-    return res.status(404).send({
+    //Pasar a ejecución de acción
+    next()
 
-        status: "error",
-        message: "Token inválido",
-        error
-    })
 }
-//Agregar datos del usuario
-
-
-//Pasar a ejecución de acción

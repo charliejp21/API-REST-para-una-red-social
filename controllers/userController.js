@@ -6,13 +6,15 @@ const registerUserDb = async (name, subname, nick, email, password) => {
     //Cifrar la contraseña (se utilza la librebreia bcrypt-nodejs)(el 10 son los cifrados sobre cifrados, es como el nivel de seguridad ne cifrado)
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    password = hashedPassword;
+
     const registerUser = new User({
 
         name, 
         subname,
         nick, 
         email, 
-        hashedPassword,
+        password,
 
     })
 
@@ -36,24 +38,38 @@ const duplicatedUserDb = (email, nick) =>{
 
 }
 
-const loginFind = (email, password) => {
+const loginFind = async(email, password) => {
 
     if(email && password){
 
-         const findUser = User.findOne({email: email})
+         const findUser = await User.findOne({email: email})
 
-         const pwd = bcryptSync(password, findUser.password) 
+         if(findUser){
 
-         if(!pwd && !findUser){
+            const pwdMatch = await bcrypt.compareSync(password, findUser.password) 
 
-            throw error;
+            if(pwdMatch){
+
+                return findUser
+
+            }
 
          }
 
-         
-      return findUser;
-
     }
+
 }
 
-module.exports = {registerUserDb,duplicatedUserDb, loginFind};
+const findUserById = async(id) =>{
+
+    const findUser = await User.findById(id).select({password:0, role:0})
+
+    if(findUser){
+
+        return findUser
+
+    }
+
+}
+
+module.exports = {registerUserDb,duplicatedUserDb, loginFind, findUserById};

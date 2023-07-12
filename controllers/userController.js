@@ -105,7 +105,7 @@ const userToUpdateDuplicated = (email, nick, id) =>{
           .exec()
           .then(users => {
 
-            //Si la concidencia encotrada por cada usuario es diferenete el id que hace se pushea a userIsset, si del usuario que se encuntra info es el mimso id al del que hace la peticion se retorna null y deja actualizar la info
+            //Si la concidencia encotrada por cada usuario es diferenete el id que hace se pushea a userIsset, si del usuario que se encuentra info es el mismo id al del que hace la peticion se retorna null ya que no hay nada que pushear y deja actualizar la info
 
             let userIsset = [];
 
@@ -146,20 +146,18 @@ const updateUser = async(name, subname, nick, email, password, bio, id) => {
 
     }
 
-    const updateUser = {
-
-        name, 
-        subname,
-        nick, 
-        email, 
-        password,
-        bio
-
-    }
-
-   const userUpdated = await User.findByIdAndUpdate(id, updateUser, {new:true}) 
-
-   //El tercero parametro {new:true} es para que se devuelvan los datos actualizados tras lac consulta
+   const userUpdated = await User.findByIdAndUpdate(
+        id,
+        {
+            name,
+            subname,
+            nick,
+            email,
+            password,
+            bio
+        },
+        {new:true}).select({password:0, role:0}) 
+   //El tercero parametro {new:true} es para que se devuelvan los datos actualizados tras la consulta
 
    return userUpdated
 
@@ -169,7 +167,14 @@ const saveImgDb = async(id, imgPath) => {
 
     if(id && imgPath){
 
-        return await User.findOneAndUpdate(id, imgPath, ({new:true}))
+        return await User.findOneAndUpdate(
+
+            {_id: id},
+            {image: imgPath},
+            {new: true}
+
+        ).select({password:0, role:0})
+        //.select para devolver datos del usuario sin la contraseña
 
     }
 

@@ -319,20 +319,21 @@ const uploadContentUser = async (req, res) => {
     }
 
     //Conseguir el nombre del archivo
-    let imgAvatar = req.file.originalname
+    let imgAvatar = req.file.originalname;
 
     //Sacar la extension del archivo
-    let imageSplit = imgAvatar.split("\.")
-    let extension = imageSplit[1]
+    let imageSplit = imgAvatar.split(".");
+    let extension = imageSplit.at(-1);
 
     //Comprobar extrension
-    if(extension != "png" && extension != "jpg" && extension != "jpeg" && extension != "gif"){
+    if(extension !== "png" && extension !== "jpg" && extension !== "jpeg" && extension !== "gif"){
 
         //Si no es el correcto, borrar archivo 
         const filePath = req.file.path;
-        const fileDeleted = fs.unlinkSync(filePath)
 
-        return res.status(400).error({
+        fs.unlinkSync(filePath)
+
+        return res.status(400).json({
 
             status: "error", 
             mensaje: "Por favor sube un formato de imagen válido"
@@ -345,18 +346,18 @@ const uploadContentUser = async (req, res) => {
 
         const saveImage = await saveImgDb(req.user.id, req.file.filename)
 
-        if (saveImage.length > 0){
-
-            //Devolver respuesta
+        if(saveImage){
 
             return res.status(201).json({
 
                 status: "success", 
                 mensaje: "Imagen actualizada exitosamente", 
-                imagen: saveImage
+                user: saveImage,
+                file: req.file
             })
+
         }
-        
+
     } catch (error) {
 
         return res.status(500).json({

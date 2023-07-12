@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const {registerUser, loginUser, miCuenta, miPerfil, listarUsuarios, updateBio, uploadContentUser} = require('../handlers/userHandler')
+const {registerUser, loginUser, miCuenta, miPerfil, listarUsuarios, updateBio, uploadContentUser, showImgAvatar} = require('../handlers/userHandler')
 const authMiddle = require("../middlewares/auth")
 const multer = require("multer")
 const userRoutes = Router();
@@ -24,8 +24,9 @@ userRoutes.post("/login", loginUser)
 userRoutes.get("/mi-cuenta", authMiddle.auth, miCuenta)
 userRoutes.get("/mi-perfil/:id", authMiddle.auth, miPerfil)
 userRoutes.get("/usuarios/:page?", authMiddle.auth, listarUsuarios)
-userRoutes.put("/actualizar/", authMiddle.auth, updateBio)
+userRoutes.put("/actualizar", authMiddle.auth, updateBio)
 //file0 es el nombre del field html por el cual se recibe el archivo
-userRoutes.post("/upload/", [authMiddle.auth, uploads.single("file0")], uploadContentUser)
+userRoutes.post("/upload", [authMiddle.auth, uploads.single("file0")], uploadContentUser)
+userRoutes.get("/avatar/:file", authMiddle.auth, showImgAvatar)
 
 module.exports = userRoutes;

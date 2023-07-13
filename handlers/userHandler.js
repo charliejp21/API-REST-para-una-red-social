@@ -1,5 +1,6 @@
-const {registerUserDb, duplicatedUserDb, loginFind, findUserById, listUsersDb, userToUpdateDuplicated, updateUser, saveImgDb} = require('../controllers/userController');
+const {registerUserDb, duplicatedUserDb, loginFind, findUserById, listUsersDb, userToUpdateDuplicated, updateUser, saveImgDb, showImgDb} = require('../controllers/userController');
 const fs = require("fs")
+const path = require("path")
 
 //importar servicios
 const createToken = require("../services/jwt")
@@ -370,4 +371,35 @@ const uploadContentUser = async (req, res) => {
 
 }
 
-module.exports = {registerUser, loginUser, miCuenta, miPerfil, listarUsuarios, updateBio, uploadContentUser};
+const showImgAvatar = async (req, res) => {
+
+    //Sacar el párametro solicitado de la url 
+    const {file} = req.params;
+
+    //Montar el path real de la imagen
+    const filePath = "./uploads/avatars/" + file;
+
+    //Comprobar que exsiste
+    //.stat sirve para virificar si hay un archivo en el servidor
+    fs.stat(filePath, (error, exists) =>{
+
+        if(!exists){
+
+            return res.status(400).json({
+
+                status: "error", 
+                mensaje: "Imagen no encontrada"
+            })
+
+        }else{
+            //Devolver el file
+            //path es una libreria de node js que permite mandar un path absoluto o fisico en la respuesta
+            //path.resolve consigue una rusta absoluta de la ruta física que se le pase
+            return res.sendFile(path.resolve(filePath))
+        }
+
+    })        
+
+
+}
+module.exports = {registerUser, loginUser, miCuenta, miPerfil, listarUsuarios, updateBio, uploadContentUser, showImgAvatar};

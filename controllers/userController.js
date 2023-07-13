@@ -1,6 +1,5 @@
 const User = require("../models/User")
 const bcrypt = require('bcrypt')
-
 const registerUserDb = async (name, subname, nick, email, password) => {
 
     //Cifrar la contraseña (se utilza la librebreia bcrypt-nodejs)(el 10 son los cifrados sobre cifrados, es como el nivel de seguridad ne cifrado)

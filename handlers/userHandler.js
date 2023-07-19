@@ -1,4 +1,4 @@
-const {registerUserDb, duplicatedUserDb, loginFind, findUserById, listUsersDb, userToUpdateDuplicated, updateUser, saveImgDb, showImgDb} = require('../controllers/userController');
+const {registerUserDb, duplicatedUserDb, loginFind, findUserById, listUsersDb, userToUpdateDuplicated, updateUser, saveImgDb} = require('../controllers/userController');
 const fs = require("fs")
 const path = require("path")
 

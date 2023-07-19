@@ -1,8 +1,10 @@
-const {Router} = require('express')
-const pruebaFollow = require("../handlers/followHandler")
+const {Router} = require('express');
+const {auth} = require("../middlewares/auth")
+const {saveFollow, deleteFollow} = require("../handlers/followHandler")
 
 const followRoutes = Router();
 
-followRoutes.get("/", pruebaFollow)
+followRoutes.post("/save", auth, saveFollow)
+followRoutes.delete("/delete/:id", auth, deleteFollow)
 
 module.exports = followRoutes;

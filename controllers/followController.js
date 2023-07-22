@@ -1,5 +1,16 @@
 const Follow = require("../models/Follow")
 
+const findFollowController = async(id, followed) => {
+
+    return await Follow.find({
+
+        user: id,
+        followed: followed
+
+    })
+   
+
+}
 const newFollowedController = async (id, followed) => {
 
     const objFollowed = new Follow({
@@ -10,24 +21,18 @@ const newFollowedController = async (id, followed) => {
     });
 
     return await objFollowed.save()
-
-    .then (FollowedSucces => FollowedSucces)
-    .catch (error => {
-
-        throw error;
-    })
-
+    
 }
 
 const removeUnfollowController = async (id, idUnfollow) => {
     
-    return await Follow.find({
+    return await Follow.findOneAndDelete({
 
-        "user": id, 
-        "followed": idUnfollow
+        user: id,
+        followed: idUnfollow
 
     })
-    .then(followedStored => followedStored)
+    .then(followedDelated => followedDelated)
     .catch(error => {
         
         throw error
@@ -35,4 +40,4 @@ const removeUnfollowController = async (id, idUnfollow) => {
 
 }
 
-module.exports = {newFollowedController, removeUnfollowController};
+module.exports = {newFollowedController, removeUnfollowController, findFollowController};

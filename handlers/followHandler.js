@@ -1,4 +1,4 @@
-const {newFollowedController, removeUnfollowController} = require("../controllers/followController")
+const {newFollowedController, removeUnfollowController, findFollowController} = require("../controllers/followController")
 
 const saveFollow = async(req, res) => {
 
@@ -8,29 +8,45 @@ const saveFollow = async(req, res) => {
     //Sacar id del usuario identificado
     const {id} = req.user;
 
-    //Crear objeto con modelo follow en el controller
-    //Guardar objeto en bd- - Mandar al controller
-
     try {
 
+        //Buscar follow en la bd
+        //Crear objeto con modelo follow en el controller
+        //Guardar objeto en bd- - Mandar al controller
+
+        const findFollow = await findFollowController(id, followed)
+
+        if(findFollow.length){
+
+            return res.status(400).json({
+
+                status: "error",
+                mensaje: "Ya se encuentra el follow registrado en la base de datos"
+    
+            })
+
+        }
+        
         const newFollwed = await newFollowedController(id, followed);
 
-        return res.status(200).json({
+        if(newFollwed){
 
-            status: "success",
-            mensaje: "ruta save follow", 
-            user: req.user,
-            followed: newFollwed,
-            userId: id
+            return res.status(200).json({
 
-        })
+                status: "success",
+                mensaje: "Se ha registrado el follow exitosamente"
+    
+            })
+
+        }
+        
 
     } catch (error) {
 
         return res.status(500).json({
 
            status: "error",
-           error: "Error del servidor al seguir al usuario"
+           error: "Error del servidor al registrar el follow"
 
         })
         

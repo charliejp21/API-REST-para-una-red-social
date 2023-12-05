@@ -40,4 +40,57 @@ const removeUnfollowController = async (id, idUnfollow) => {
 
 }
 
-module.exports = {newFollowedController, removeUnfollowController, findFollowController};
+const listUsersFollowingController = async(idUser, pagination) => {
+
+    const ITEMS_PER_PAGE = 5;
+
+     // Usa el método paginate proporcionado por el plugin.
+    let findFollowers = await Follow.paginate(
+
+            { user: idUser },
+            {
+                page: pagination,
+                limit: ITEMS_PER_PAGE,
+                populate: {
+                    path: "user followed",
+                    select: "-password -role -__v"
+            }
+        }
+    //Se utiliza para cargar los datos completos de los usuarios relacionados en los campos user y followed dentro de los documentos de la colección follows. 
+  );
+    
+    const results = findFollowers.docs;
+    const total = findFollowers.totalDocs;
+    const pages = Math.ceil(total/ITEMS_PER_PAGE)
+
+    return { results, total, pages };
+    
+}
+
+const listMyFollwersController = async(idUser, pagination) => {
+
+    const ITEMS_PER_PAGE = 5;
+
+    // Usa el método paginate proporcionado por el plugin.
+   let findFollowers = await Follow.paginate(
+
+           { followed: idUser },
+           {
+               page: pagination,
+               limit: ITEMS_PER_PAGE,
+               populate: {
+                   path: "user followed",
+                   select: "-password -role -__v"
+           }
+       }
+   //Se utiliza para cargar los datos completos de los usuarios relacionados en los campos user y followed dentro de los documentos de la colección follows. 
+ );
+   
+   const results = findFollowers.docs;
+   const total = findFollowers.totalDocs;
+   const pages = Math.ceil(total/ITEMS_PER_PAGE)
+
+   return { results, total, pages };
+}
+
+module.exports = {newFollowedController, removeUnfollowController, findFollowController, listUsersFollowingController, listMyFollwersController};

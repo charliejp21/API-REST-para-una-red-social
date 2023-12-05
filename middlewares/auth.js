@@ -30,7 +30,7 @@ exports.auth = (req, res, next) =>{
         //Comprobar expiración del token
         if(payload.exp <= moment().unix()){
 
-            return res.status(401).send({
+            return res.status(401).json({
 
                 status: "error",
                 message: "Token expirado",

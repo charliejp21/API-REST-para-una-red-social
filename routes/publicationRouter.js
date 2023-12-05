@@ -1,8 +1,8 @@
 const {Router} = require('express');
-const pruebaPublication = require('../handlers/publicationHandler')
+const {savePublicationHandler} = require('../handlers/publicationHandler')
 
 const publicationRoutes = Router();
 
-publicationRoutes.get("/", pruebaPublication);
+publicationRoutes.get("/", savePublicationHandler);
 
 module.exports = publicationRoutes;

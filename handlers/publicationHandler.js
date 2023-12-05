@@ -1,10 +1,24 @@
-const pruebaPublication = (req, res) => {
+
+//Guardar publicación
+const savePublicationHandler = (req, res) => {
 
     return res.status(200).send({
 
-        message: "Mensaje de prueba"
+        status: "success",
+        mensaje: "Guardar publicacion"
+        
     })
 
 }
 
-module.exports = pruebaPublication;
+//Obtener una publicación
+
+//Eliminar una publicación
+
+//Listar todas las publicaciones
+
+//Subir ficheros
+
+//Devolver archivos multimedia 
+
+module.exports = {savePublicationHandler};

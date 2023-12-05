@@ -1,4 +1,4 @@
-const {newFollowedController, removeUnfollowController, findFollowController} = require("../controllers/followController")
+const {newFollowedController, removeUnfollowController, findFollowController, listUsersFollowingController, listMyFollwersController} = require("../controllers/followController")
 
 const saveFollow = async(req, res) => {
 
@@ -88,4 +88,120 @@ const deleteFollow = async(req, res) => {
 
 }
 
-module.exports = {saveFollow, deleteFollow}
+//Accion listado de usuarios a los que sigue el usuario(siguiendo)
+const followingUsersHandler = async (req, res) => {
+
+    //Sacar el id del usuario identificado
+    let idUser = req.user.id;
+
+    //comprobar si me llga el id por parametro en url
+    const {id} = req.params;
+
+    if(id) idUser = id;
+ 
+    //Comprobar si me llega la página, si no que se la página 1
+
+    let pagination = 1;
+
+    let {page} = req.params;
+
+    if(page) {
+
+        page = parseInt(page);
+
+        pagination = page;
+
+    }
+
+    //-----Controller---/
+    //Usuarios por página que quiero mostrar
+
+    //Find and follow, también popular datos de los usuarios y paginar con mongoose paginate
+    const listUsers = await listUsersFollowingController(idUser, pagination)
+
+    if(!listUsers.results.length){
+        
+        return res.status(400).json({
+
+            status: "error", 
+            mensaje: "El usuario no sigue a ningun otro usuario"
+    
+        })
+
+    }
+
+    return res.status(200).json({
+
+        status: "success", 
+        mensaje: "Listado de usuarios que estoy siguiendo",
+        followings: listUsers,
+
+    })
+
+
+}
+
+//Accion listado de usuarios que siguen al usuario(mis seguidores) 
+const myFollowersHandler = async (req, res) => {
+
+     //Sacar el id del usuario identificado
+     let idUser = req.user.id;
+
+     //comprobar si me llga el id por parametro en url
+     const {id} = req.params;
+ 
+     if(id) idUser = id;
+  
+     //Comprobar si me llega la página, si no que se la página 1
+ 
+     let pagination = 1;
+ 
+     let {page} = req.params;
+ 
+     if(page) {
+ 
+         page = parseInt(page);
+ 
+         pagination = page;
+ 
+     }
+
+     try {
+
+        const listUsers = await listMyFollwersController(idUser, pagination)
+
+        if(!listUsers.results.length){
+            
+            return res.status(400).json({
+    
+                status: "error", 
+                mensaje: "El usuario no sigue a ningun otro usuario"
+        
+            })
+    
+        }
+    
+        return res.status(200).json({
+    
+            status: "success", 
+            mensaje: "Listado de usuarios que son mis seguidores",
+            followers: listUsers,
+    
+        })
+
+        
+     } catch (error) {
+
+        return res.status(500).json({
+ 
+            status: "error", 
+            mensaje: "Error del servidor al obtener los seguidores",
+    
+        })
+        
+     }
+
+    
+}
+
+module.exports = {saveFollow, deleteFollow, followingUsersHandler, myFollowersHandler}

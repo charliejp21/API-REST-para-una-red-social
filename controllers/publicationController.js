@@ -25,4 +25,31 @@ const deletePublicationController = async(id, userId) => {
         
     })
 }
-module.exports  = {savePublicationController, getPublicationContoller, deletePublicationController}
+
+const listPublicationsController = async(userId, page) => {
+
+    const itemsPerPage = 5;
+
+    let findPublications = await Publication.paginate(
+
+        { user: userId },
+        {
+            page: page,
+            limit: itemsPerPage,
+            populate: {
+                path: "user",
+                select: "-password -role -__v"
+             }
+         }
+
+    )
+
+   const results = findPublications.docs;
+   const total = findPublications.totalDocs;
+   const pages = Math.ceil(total/itemsPerPage)
+
+   return { total, pages, results};
+
+}
+
+module.exports  = {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController}

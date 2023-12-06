@@ -1,8 +1,9 @@
 const {Router} = require('express');
 const {savePublicationHandler} = require('../handlers/publicationHandler')
+const {auth} = require("../middlewares/auth")
 
 const publicationRoutes = Router();
 
-publicationRoutes.get("/", savePublicationHandler);
+publicationRoutes.post("/save/", auth, savePublicationHandler)
 
 module.exports = publicationRoutes;

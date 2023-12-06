@@ -10,4 +10,10 @@ const savePublicationController = async(data, userId) => {
 
 }
 
-module.exports  = savePublicationController
+const getPublicationContoller = async(id) => {
+
+    return await Publication.findById(id)
+
+}
+
+module.exports  = {savePublicationController, getPublicationContoller}

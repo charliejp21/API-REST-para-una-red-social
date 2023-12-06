@@ -16,4 +16,13 @@ const getPublicationContoller = async(id) => {
 
 }
 
-module.exports  = {savePublicationController, getPublicationContoller}
+const deletePublicationController = async(id, userId) => {
+
+    return await Publication.findOneAndDelete({
+
+        user: userId,
+        _id: id
+        
+    })
+}
+module.exports  = {savePublicationController, getPublicationContoller, deletePublicationController}

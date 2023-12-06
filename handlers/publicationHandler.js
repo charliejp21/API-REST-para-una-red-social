@@ -1,10 +1,10 @@
-const savePublicationController = require("../controllers/publicationController")
+const {savePublicationController, getPublicationContoller} = require("../controllers/publicationController")
 //Guardar publicación
 const savePublicationHandler = async(req, res) => {
 
     if(!req.body.text){
 
-        return res.status(401).send({
+        return res.status(401).json({
 
             status: "error",
             mensaje: "Falta el campo texto por enviar en la publicación"
@@ -18,7 +18,7 @@ const savePublicationHandler = async(req, res) => {
 
         if(savePublicationDb){
 
-            return res.status(200).send({
+            return res.status(200).json({
 
                 status: "success",
                 mensaje: "Publicacion creada exitosamente",
@@ -29,7 +29,7 @@ const savePublicationHandler = async(req, res) => {
         
     } catch (error) {
 
-        return res.status(401).send({
+        return res.status(401).json({
 
             status: "error",
             mensaje: "Error al crear la publicación debido a que no se ha encontrado el id del usuario proporcionado",
@@ -38,18 +38,66 @@ const savePublicationHandler = async(req, res) => {
         
     }
 
-    return res.status(500).send({
+    return res.status(500).json({
 
         status: "error",
         mensaje: "Error del servidor al crear la publicación",
         
     })
 
-    
-
 }
 
 //Obtener una publicación
+const getPublicationHandler = async(req, res) => {
+
+    const {id} = req.params;
+
+    if(!id){
+
+        return res.status(401).json({
+
+            status: "error",
+            mensaje: "Falta el di de la publicación por enviar",
+            
+        })
+        
+
+    }
+
+    try {
+
+        const getPublicationDb = await getPublicationContoller(id);
+        
+        if(getPublicationDb){
+
+            return res.status(200).json({
+
+                status: "success",
+                mensaje: "Publicacion encontrada exitosamente",
+                publicacion: getPublicationDb
+                
+            })
+        } 
+        
+    } catch (error) {
+
+        return res.status(401).json({
+
+            status: "error",
+            mensaje: "No se ha encontrado la publicación con el id proporcionado",
+            
+        })
+        
+    }
+
+    return res.status(500).json({
+
+        status: "error",
+        mensaje: "Error del servidor al buscar la publicación",
+        
+    })
+
+}
 
 //Eliminar una publicación
 
@@ -59,4 +107,4 @@ const savePublicationHandler = async(req, res) => {
 
 //Devolver archivos multimedia 
 
-module.exports = {savePublicationHandler};
+module.exports = {savePublicationHandler,getPublicationHandler};

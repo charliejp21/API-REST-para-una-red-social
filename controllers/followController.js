@@ -81,8 +81,8 @@ const listMyFollwersController = async(idUser, pagination) => {
                populate: {
                    path: "user followed",
                    select: "-password -role -__v"
-           }
-       }
+                }
+            }
    //Se utiliza para cargar los datos completos de los usuarios relacionados en los campos user y followed dentro de los documentos de la colección follows. 
  );
    

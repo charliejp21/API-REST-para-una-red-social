@@ -4,7 +4,7 @@ const PublicationSchema = Schema({
 
     user:{
 
-        type: Schema.Object.Id, 
+        type: Schema.ObjectId, 
         ref: "User"
         
     },

@@ -1,4 +1,4 @@
-const {savePublicationController, getPublicationContoller} = require("../controllers/publicationController")
+const {savePublicationController, getPublicationContoller, deletePublicationController} = require("../controllers/publicationController")
 //Guardar publicación
 const savePublicationHandler = async(req, res) => {
 
@@ -57,7 +57,7 @@ const getPublicationHandler = async(req, res) => {
         return res.status(401).json({
 
             status: "error",
-            mensaje: "Falta el di de la publicación por enviar",
+            mensaje: "Falta el id de la publicación por enviar",
             
         })
         
@@ -99,6 +99,56 @@ const getPublicationHandler = async(req, res) => {
 
 }
 
+const deletePublicationHandler = async(req, res) => {
+
+    const {id} = req.params;
+
+    if(!id){
+
+        return res.status(401).json({
+
+            status: "error",
+            mensaje: "Falta el id de la publicación que será borrada",
+            
+        })
+        
+
+    }
+
+    try {
+
+        const deletePublicationDb = await deletePublicationController(id, req.user.id);
+        
+        if(deletePublicationDb){
+
+            return res.status(200).json({
+
+                status: "success",
+                mensaje: "Publicacion borrada exitosamente",
+                publicacion: deletePublicationDb
+                
+            })
+        } 
+        
+    } catch (error) {
+
+        return res.status(401).json({
+
+            status: "error",
+            mensaje: "No se ha encontrado la publicación con el id proporcionado",
+            
+        })
+        
+    }
+
+    return res.status(500).json({
+
+        status: "error",
+        mensaje: "Error del servidor al borrar la publicación",
+        
+    })
+
+}
 //Eliminar una publicación
 
 //Listar todas las publicaciones
@@ -107,4 +157,4 @@ const getPublicationHandler = async(req, res) => {
 
 //Devolver archivos multimedia 
 
-module.exports = {savePublicationHandler,getPublicationHandler};
+module.exports = {savePublicationHandler,getPublicationHandler, deletePublicationHandler};

@@ -1,4 +1,7 @@
-const {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController} = require("../controllers/publicationController")
+const {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController, uploadImgPublicationController} = require("../controllers/publicationController")
+const fs = require("fs")
+const path = require("path")
+
 //Guardar publicación
 const savePublicationHandler = async(req, res) => {
 
@@ -198,6 +201,95 @@ const getPublicationsHandler = async(req, res) => {
 
 }
 
+const uploadImgPublicationHandler = async(req, res) => {
+
+    //Sacar publication id
+    const {idPublication} = req.params;
+
+    if(!idPublication){
+
+        return res.status(404).json({
+
+            status: "error", 
+            mensaje: "No se ha proporcionado el id de la publicación"
+
+        })
+    }
 
 
-module.exports = {savePublicationHandler,getPublicationHandler, deletePublicationHandler, getPublicationsHandler};
+    //Recoger el  fichero de la imagen  y comprobar que existe
+    if(!req.file){
+
+        return res.status(404).json({
+
+            status: "error", 
+            mensaje: "No se ha proporcionado la imagen de la publicación"
+
+        })
+    }
+
+    //Conseguir el nombre del archivo
+    let imgPublication = req.file.originalname;
+
+    //Sacar la extension del archivo
+    let imageSplit = imgPublication.split(".");
+    let extension = imageSplit.at(-1);
+
+    //Comprobar extrension
+    if(extension !== "png" && extension !== "jpg" && extension !== "jpeg" && extension !== "gif"){
+
+        //Si no es el correcto, borrar archivo 
+        const filePath = req.file.path;
+
+        fs.unlinkSync(filePath)
+
+        return res.status(400).json({
+
+            status: "error", 
+            mensaje: "Por favor sube un formato de imagen válido"
+        })
+
+    }
+
+    // Si es el correcto guardar imagen en la bd
+    try {
+
+        const saveImage = await uploadImgPublicationController(req.user.id, req.file.filename, idPublication)
+
+        if(saveImage){
+
+            return res.status(201).json({
+
+                status: "success", 
+                mensaje: "Imagen actualizada exitosamente", 
+                publication: saveImage,
+                file: req.file
+            })
+
+        }
+
+    } catch (error) {
+
+        //Si no es el correcto, borrar archivo 
+        const filePath = req.file.path;
+
+        fs.unlinkSync(filePath)
+
+        return res.status(401).json({
+
+            status: "error", 
+            mensaje: "No se ha encontrado el id del usuario proporcionado"
+        })
+        
+    }
+
+    return res.status(500).json({
+
+        status: "error", 
+        mensaje: "Error del servidor al actualizar la imagen de la publicación"
+    })
+
+}
+
+
+module.exports = {savePublicationHandler,getPublicationHandler, deletePublicationHandler, getPublicationsHandler, uploadImgPublicationHandler};

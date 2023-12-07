@@ -52,4 +52,23 @@ const listPublicationsController = async(userId, page) => {
 
 }
 
-module.exports  = {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController}
+const uploadImgPublicationController = async(idUser, imgFilename, idPublication) => {
+
+    if(idUser && imgFilename && idPublication){
+
+        return await Publication.findOneAndUpdate(
+
+            { "_id": idPublication },
+            { $set: { 
+                user: idUser, 
+                file: imgFilename 
+            } }, // Utiliza $set para actualizar múltiples campos
+            { new: true }
+
+        )
+
+    }
+
+}
+
+module.exports  = {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController, uploadImgPublicationController}

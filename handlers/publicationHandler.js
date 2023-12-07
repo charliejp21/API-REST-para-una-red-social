@@ -291,5 +291,36 @@ const uploadImgPublicationHandler = async(req, res) => {
 
 }
 
+const getImagePublicationHandler = async(req, res) => {
 
-module.exports = {savePublicationHandler,getPublicationHandler, deletePublicationHandler, getPublicationsHandler, uploadImgPublicationHandler};
+    //Sacar el párametro solicitado de la url 
+    const {nameImage} = req.params;
+
+    //Montar el path real de la imagen
+    const filePath = "./uploads/publications/" + nameImage;
+
+    //Comprobar que exsiste
+    //.stat sirve para virificar si hay un archivo en el servidor
+    fs.stat(filePath, (error, exists) =>{
+
+        if(!exists){
+
+            return res.status(400).json({
+
+                status: "error", 
+                mensaje: "Imagen no encontrada"
+            })
+
+        }else{
+            //Devolver el file
+            //path es una libreria de node js que permite mandar un path absoluto o fisico en la respuesta
+            //path.resolve consigue una rusta absoluta de la ruta física que se le pase
+            return res.sendFile(path.resolve(filePath))
+        }
+
+    })     
+
+}
+
+
+module.exports = {savePublicationHandler,getPublicationHandler, deletePublicationHandler, getPublicationsHandler, uploadImgPublicationHandler, getImagePublicationHandler};

@@ -1,4 +1,5 @@
 const Publication = require("../models/Publication")
+const followService = require("../services/followService")
 
 const savePublicationController = async(data, userId) => {
 
@@ -38,7 +39,7 @@ const listPublicationsController = async(userId, page) => {
             limit: itemsPerPage,
             populate: {
                 path: "user",
-                select: "-password -role -__v"
+                select: "-password -role -__v -email"
              }
          }
 
@@ -71,4 +72,45 @@ const uploadImgPublicationController = async(idUser, imgFilename, idPublication)
 
 }
 
-module.exports  = {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController, uploadImgPublicationController}
+const feedPublicationsController = async(page, idUser) => {
+
+    const itemsPerPage = 5 ;
+
+    const myFollows = await followService.followUserIds(idUser)
+
+    let findPublications = await Publication.paginate(
+
+        { user:  {"$in": myFollows.following}},
+        {
+            page: page,
+            limit: itemsPerPage,
+            populate: {
+                path: "user",
+                select: "-password -role -__v -email"
+             }, 
+             sort: { createdAt: -1 }
+         }, 
+    )
+
+   const results = findPublications.docs;
+   const total = findPublications.totalDocs;
+   const pages = Math.ceil(total/itemsPerPage)
+
+   return { 
+        total, 
+        pages, 
+        results, 
+        following: myFollows.following, 
+        follower: myFollows.follower
+    };
+
+}
+
+module.exports  = {
+    savePublicationController, 
+    getPublicationContoller, 
+    deletePublicationController, 
+    listPublicationsController, 
+    uploadImgPublicationController, 
+    feedPublicationsController
+}

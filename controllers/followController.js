@@ -1,4 +1,5 @@
-const Follow = require("../models/Follow")
+const Follow = require("../models/Follow");
+const followService = require("../services/followService");
 
 const findFollowController = async(id, followed) => {
 
@@ -53,17 +54,18 @@ const listUsersFollowingController = async(idUser, pagination) => {
                 limit: ITEMS_PER_PAGE,
                 populate: {
                     path: "user followed",
-                    select: "-password -role -__v"
+                    select: "-password -role -__v -email"
             }
         }
     //Se utiliza para cargar los datos completos de los usuarios relacionados en los campos user y followed dentro de los documentos de la colección follows. 
   );
-    
+        
+    const followUserIds = await followService.followUserIds(idUser)
     const results = findFollowers.docs;
     const total = findFollowers.totalDocs;
     const pages = Math.ceil(total/ITEMS_PER_PAGE)
 
-    return { results, total, pages };
+    return { results, total, pages, followUserIds };
     
 }
 
@@ -80,12 +82,11 @@ const listMyFollwersController = async(idUser, pagination) => {
                limit: ITEMS_PER_PAGE,
                populate: {
                    path: "user followed",
-                   select: "-password -role -__v"
+                   select: "-password -role -__v -email"
                 }
             }
    //Se utiliza para cargar los datos completos de los usuarios relacionados en los campos user y followed dentro de los documentos de la colección follows. 
  );
-   
    const results = findFollowers.docs;
    const total = findFollowers.totalDocs;
    const pages = Math.ceil(total/ITEMS_PER_PAGE)

@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const {savePublicationHandler, getPublicationHandler,deletePublicationHandler, getPublicationsHandler, uploadImgPublicationHandler, getImagePublicationHandler} = require('../handlers/publicationHandler')
+const {savePublicationHandler, getPublicationHandler,deletePublicationHandler, getPublicationsHandler, uploadImgPublicationHandler, getImagePublicationHandler, feedPublicationsHandler} = require('../handlers/publicationHandler')
 const {auth} = require("../middlewares/auth")
 const multer = require("multer")
 const publicationRoutes = Router();
@@ -26,5 +26,6 @@ publicationRoutes.delete("/id/:id", auth, deletePublicationHandler)
 publicationRoutes.get("/user/:userId/:page?", auth, getPublicationsHandler)
 publicationRoutes.put("/upload-img/:idPublication", [auth, uploads.single("file0")], uploadImgPublicationHandler)
 publicationRoutes.get("/image/:nameImage", auth, getImagePublicationHandler)
+publicationRoutes.get("/feed/:page?", auth, feedPublicationsHandler)
 
 module.exports = publicationRoutes;

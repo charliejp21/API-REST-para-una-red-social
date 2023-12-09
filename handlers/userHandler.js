@@ -1,6 +1,7 @@
-const {registerUserDb, duplicatedUserDb, loginFind, findUserById, listUsersDb, userToUpdateDuplicated, updateUser, saveImgDb} = require('../controllers/userController');
+const {registerUserDb, duplicatedUserDb, loginFind, findUserById, listUsersDb, userToUpdateDuplicated, updateUser, saveImgDb, countUsersController} = require('../controllers/userController');
 const fs = require("fs")
 const path = require("path")
+const validate = require("../helpers/validate")
 
 //importar servicios
 const createToken = require("../services/jwt")
@@ -22,6 +23,23 @@ const registerUser = async (req, res) => {
         })
 
     }
+
+    //Validación
+
+    try {
+
+        validate(req.body)
+        
+    } catch (error) {
+
+        return res.status(401).json({
+
+            status : "error", 
+            mensaje: error.message
+        })
+        
+    }
+
 
     //Control de usuarios duplicados
     try {
@@ -402,4 +420,61 @@ const showImgAvatar = async (req, res) => {
 
 
 }
-module.exports = {registerUser, loginUser, miCuenta, miPerfil, listarUsuarios, updateBio, uploadContentUser, showImgAvatar};
+const countUsersHandler = async(req, res) => {
+
+    const {userId} = req.params;
+
+    if(userId){
+
+        req.user.id = userId
+
+    }
+
+    try {
+
+        const countUsersDb = await countUsersController(req.user.id);
+        
+        if(countUsersDb){
+
+            return res.status(200).json({
+
+                status: "success",
+                mensaje: "Conteo obtenido exitosamente",
+                publicacion: countUsersDb
+                
+            })
+        } 
+        
+    } catch (error) {
+
+        return res.status(401).json({
+
+            status: "error",
+            mensaje: "No se ha obtenido el conteo de información con id proporcionado",
+            
+        })
+        
+    }
+
+    return res.status(500).json({
+
+        status: "error",
+        mensaje: "Error del servidor al obtener el conteo de información",
+        
+    })
+
+
+
+} 
+
+module.exports = {
+    registerUser, 
+    loginUser, 
+    miCuenta, 
+    miPerfil, 
+    listarUsuarios, 
+    updateBio, 
+    uploadContentUser, 
+    showImgAvatar, 
+    countUsersHandler
+};

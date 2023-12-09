@@ -25,7 +25,7 @@ publicationRoutes.get("/detail/:id", auth, getPublicationHandler)
 publicationRoutes.delete("/id/:id", auth, deletePublicationHandler)
 publicationRoutes.get("/user/:userId/:page?", auth, getPublicationsHandler)
 publicationRoutes.put("/upload-img/:idPublication", [auth, uploads.single("file0")], uploadImgPublicationHandler)
-publicationRoutes.get("/image/:nameImage", auth, getImagePublicationHandler)
+publicationRoutes.get("/image/:nameImage", getImagePublicationHandler)
 publicationRoutes.get("/feed/:page?", auth, feedPublicationsHandler)
 
 module.exports = publicationRoutes;

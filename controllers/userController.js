@@ -1,4 +1,6 @@
 const User = require("../models/User")
+const Follow = require("../models/Follow")
+const Publication = require("../models/Publication")
 const bcrypt = require('bcrypt')
 const followService = require("../services/followService")
 const registerUserDb = async (name, subname, nick, email, password) => {
@@ -182,4 +184,29 @@ const saveImgDb = async(id, imgPath) => {
 
 }
 
-module.exports = {registerUserDb,duplicatedUserDb, loginFind, findUserById, listUsersDb,userToUpdateDuplicated, updateUser, saveImgDb};
+const countUsersController = async(idUser) => {
+
+    const following = await Follow.count({"user" : idUser})
+
+    const followed = await Follow.count({"followed": idUser})
+
+    const publications = await Publication.count({"user": idUser})
+
+    return{
+        following: following, 
+        followed: followed, 
+        publications: publications
+    }
+}
+
+module.exports = {
+    registerUserDb,
+    duplicatedUserDb, 
+    loginFind, 
+    findUserById, 
+    listUsersDb,
+    userToUpdateDuplicated, 
+    updateUser, 
+    saveImgDb, 
+    countUsersController
+};

@@ -1,18 +1,66 @@
-const findFollowsUser = require("../controllers/findFollowsUser");
-const followUserIdes = async (identityUserId) => {
+const Follow = require("../models/Follow");
+const followUserIds = async (identityUserId) => {
 
-  let following = await findFollowsUser(identityUserId);
+  const following = await Follow.find({
 
-  let followers = false;
+    user: identityUserId,
+    //"followed" : 1, para que solo muestre la propiedad followed
+  })
+    .select({ followed: 1, _id: 0 })
+    .exec();
+
+  //Listado de followers en comun
+
+  const followers = await Follow.find({
+
+    followed: identityUserId,
+    //"followed" : 1, para que solo muestre la propiedad followed
+  })
+    .select({ user: 1, _id: 0 })
+    .exec();
+
+  let followingClean = [];
+
+  following.forEach((follow) => {
+
+    followingClean.push(follow.followed)
+
+  })
+
+  let followersClean = [];
+
+  followers.forEach((follow) => {
+
+    followersClean.push(follow.user)
+
+  })
 
   return {
-    following,
-    followers,
+    following: followingClean,
+    followers: followersClean,
   };
 };
 
 const followThisUser = async (identityUserId, profileUserId) => {
-  let followers;
+  const following = await Follow.findOne({
+
+    user: identityUserId,
+    followed: profileUserId
+  })
+  //Listado de followers en comun
+
+  const follower = await Follow.findOne({
+
+    user: profileUserId,
+    followed: identityUserId
+  })
+
+  return {
+
+    following,
+    follower
+  }
+  
 };
 
-module.exports = { followUserIdes, followThisUser };
+module.exports = { followUserIds, followThisUser };

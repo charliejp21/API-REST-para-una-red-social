@@ -1,4 +1,4 @@
-const {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController, uploadImgPublicationController} = require("../controllers/publicationController")
+const {savePublicationController, getPublicationContoller, deletePublicationController, listPublicationsController, uploadImgPublicationController, feedPublicationsController} = require("../controllers/publicationController")
 const fs = require("fs")
 const path = require("path")
 
@@ -322,5 +322,69 @@ const getImagePublicationHandler = async(req, res) => {
 
 }
 
+const feedPublicationsHandler = async(req, res) => {
 
-module.exports = {savePublicationHandler,getPublicationHandler, deletePublicationHandler, getPublicationsHandler, uploadImgPublicationHandler, getImagePublicationHandler};
+    //Obtener página actual
+    let {page} = req.params;
+
+    //Controlar en que pagina estamos
+    if(!page){
+
+        page = 1
+
+    }else{
+
+        page = parseInt(page)
+
+    }
+
+    //Establecer número de elementos por página 
+    
+    //Sacar un array de identificadores de usuarios que yo sigo como usuario logeado
+    
+    //Find a publicaciones in, ordenar, popular y paginar
+    try {
+
+        const feedPublicationsDb = await feedPublicationsController(page, req.user.id)
+
+        if(feedPublicationsDb){
+
+            return res.status(200).json({
+
+                status: "success", 
+                mensaje: "Se ha obtenido el feed de publicaciones exitosamente",
+                feed: feedPublicationsDb
+            })
+        }
+        
+    } catch (error) {
+
+        return res.status(400).json({
+
+            status: "error", 
+            mensaje: "No se han encontrado publicaciones para mostrar en el feed"
+
+        })
+        
+    }
+
+    return res.status(500).json({
+
+        status: "error", 
+        mensaje: "Error del servidor para mostrar publicaciones del feed"
+        
+    })
+
+}
+
+module.exports = {
+
+    savePublicationHandler,
+    getPublicationHandler, 
+    deletePublicationHandler, 
+    getPublicationsHandler, 
+    uploadImgPublicationHandler, 
+    getImagePublicationHandler, 
+    feedPublicationsHandler
+    
+};

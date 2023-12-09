@@ -154,9 +154,9 @@ const miPerfil = async(req, res) => {
     //consultar
     try {
 
-        const findUser = await findUserById(id)
+        const findUser = await findUserById(id, req.user.id)
 
-        if(findUser._id){
+        if(findUser){
 
             return res.status(200).json({
             

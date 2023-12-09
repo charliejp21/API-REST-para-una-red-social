@@ -1,5 +1,6 @@
 const User = require("../models/User")
 const bcrypt = require('bcrypt')
+const followService = require("../services/followService")
 const registerUserDb = async (name, subname, nick, email, password) => {
 
     //Cifrar la contraseña (se utilza la librebreia bcrypt-nodejs)(el 10 son los cifrados sobre cifrados, es como el nivel de seguridad ne cifrado)
@@ -59,13 +60,15 @@ const loginFind = async(email, password) => {
 
 }
 
-const findUserById = async(id) =>{
+const findUserById = async(id, identityUserId) =>{
 
     const findUser = await User.findById(id).select({password:0, role:0})
 
     if(findUser){
 
-        return findUser
+        const followInfo = await followService.followThisUser(id,identityUserId)
+
+        return {findUser, following: followInfo.following, follower: followInfo.follower}
 
     }
 
@@ -74,7 +77,7 @@ const findUserById = async(id) =>{
 const listUsersDb = async(page, itemsPerPage) => {
 
     const options = {
-        select: { password: 0, role: 0 },
+        select: { password: 0, role: 0 , email:0, "__v":0},
         sort: '_id',
         page: page,
         limit: itemsPerPage
